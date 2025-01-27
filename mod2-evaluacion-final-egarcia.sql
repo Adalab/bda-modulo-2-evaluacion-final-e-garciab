@@ -144,8 +144,6 @@ WHERE release_year BETWEEN 2005 AND 2010;
 
 -- 17. Encuentra el título de todas las películas que son de la misma categoría que "Family".
 
--- Dos opciones: 
--- Opcion 1 (con joins):
 SELECT f.title AS nombre_pelicula
 FROM film f
 INNER JOIN film_category fc
@@ -153,17 +151,6 @@ ON f.film_id = fc.film_id
 INNER JOIN category c
 ON fc.category_id = c.category_id
 WHERE c.name = 'Family'; 
-
--- Opcion 2 (con subconsultas):
-SELECT f.title AS nombre_pelicula
-FROM film f
-WHERE f.film_id IN(
-	SELECT fc.film_id
-	FROM film_category fc
-	WHERE fc.category_id IN (
-		SELECT c.category_id
-		FROM category c
-		WHERE c.name = 'Family'));
 
 -- 18. Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.
 
@@ -246,8 +233,6 @@ SELECT * FROM film_category;
 SELECT* FROM category;
 */
 
--- Dos opciones: 
--- Opcion 1 (solo con subconsultas)
 SELECT 
 	a.first_name AS nombre_actor, 
     a.last_name AS apellido_actor
@@ -262,20 +247,6 @@ WHERE a.actor_id NOT IN (
 			SELECT c.category_id
 			FROM category c
 			WHERE c.name = 'Horror')));
-
--- Opcion 2 (mezclando joins con una subconsulta)
-SELECT 
-	a.first_name AS nombre_actor,
-	a.last_name AS apellido_actor
-FROM actor a
-WHERE a.actor_id NOT IN (
-	SELECT fa.actor_id
-	FROM film_actor fa
-	INNER JOIN film_category fc
-	ON fa.film_id = fc.film_id
-	INNER JOIN category c
-	ON fc.category_id = c.category_id
-	WHERE c.name = 'Horror');
 
 -- BONUS
 -- 24. BONUS: Encuentra el título de las películas que son comedias y tienen una duración mayor a 180
@@ -295,3 +266,27 @@ WHERE f.length > 180 AND f.film_id IN(
 		SELECT c.category_id
 		FROM category c
 		WHERE c.name = 'Comedy'));
+        
+-- 25. BONUS: Encuentra todos los actores que han actuado juntos en al menos una película. La
+-- consulta debe mostrar el nombre y apellido de los actores y el número de películas en las que
+-- han actuado juntos. Pista: Podemos hacer un JOIN de una tabla consigo misma, poniendole un
+-- alias diferente.
+
+/*
+SELECT * FROM film_actor; 
+SELECT * FROM actor;
+*/
+
+SELECT 
+	CONCAT (a1.first_name, ' ', a1.last_name) AS actor1,
+    CONCAT (a2.first_name, ' ', a2.last_name) AS actor2,
+	COUNT(fa1.film_id) AS recuento_pelicula
+FROM film_actor fa1
+JOIN film_actor fa2
+ON fa1.film_id = fa2.film_id -- este primer self join me da para cada pelicula, los pares de actores que han trabajado en ella
+INNER JOIN actor a1
+ON fa1.actor_id = a1.actor_id
+INNER JOIN actor a2
+ON fa2.actor_id = a2.actor_id -- uno las tablas actor para poder incluir en el select los nombres de actor (en lugar de los ids)
+GROUP BY actor1, actor2 -- agrupo por parejas de actores para contar el numero de peliculas en el que han trabajado juntos.
+HAVING actor1 < actor2; -- añado esta condicion para excluir las parejas de actores consigo mismo y duplicados
