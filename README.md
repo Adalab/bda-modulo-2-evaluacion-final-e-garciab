@@ -6,7 +6,7 @@ Lo primero será importar la base de datos en MySQL Workbench, que será el sist
 
 Aprendizajes del modulo: 
 - Importar BBDD (creación y carga de datos)
-- Componentes básicos de una BBDD y cómo se interrelacionan entre sí
+- Componentes básicos de una BBDD 
 - Relaciones entre tablas
 - Normalización de BBDD
 - Comandos principales de MySQL Workbench
